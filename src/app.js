@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import pool from "./config/db.js";
@@ -14,7 +16,13 @@ import dashboardRoutes from "./config/modules/dashboard/dashboard.routes.js";
 
 const app = Fastify({ logger: true });
 await app.register(cors, {
-  origin: ["http://localhost:3000"],
+  origin: [
+    process.env.FRONTEND_ORIGIN,
+    process.env.ADMIN_ORIGIN,
+    "http://localhost:4321",
+    "http://localhost:3000",
+    "http://localhost:3008",
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -22,13 +30,7 @@ await app.register(cors, {
 
 app.decorate("db", pool);
 app.register(cookie);
-app.register(cors, {
-  origin: [
-    process.env.FRONTEND_ORIGIN,
-    process.env.ADMIN_ORIGIN,
-  ],
-  credentials: true,
-});
+
 app.register(jwt, {
   secret: process.env.JWT_SECRET,
 });
@@ -66,8 +68,12 @@ app.get("/", async () => {
 
 const start = async () => {
   try {
-    await app.listen({ port: 3001 });
-    console.log("Server running on http://localhost:3001");
+    const PORT = process.env.PORT || 3011;
+    app.listen({
+      port: PORT,
+      host: "0.0.0.0",
+    });
+    console.log("Server running on http://localhost:3011");
   } catch (err) {
     app.log.error(err);
     process.exit(1);
