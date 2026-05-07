@@ -298,6 +298,12 @@ export async function updateWallProject(db, id, payload) {
     ]
   );
 
+  const { deletedFiles = [] } = payload;
+
+  for (const key of deletedFiles) {
+    await deleteFromS3(key);
+  }
+
   // 🔥 reset images (ง่ายสุดก่อน)
   await db.query(
     `DELETE FROM wall_project_images WHERE wall_project_id = ?`,

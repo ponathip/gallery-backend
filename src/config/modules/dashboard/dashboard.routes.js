@@ -1,5 +1,5 @@
 
-export default async function artworkRoutes(app) {
+export default async function dashboardRoutes(app) {
     app.get("/dashboard/summary", async (req, reply) => {
     const [[artworks]] = await req.server.db.query(
         `SELECT COUNT(*) AS total FROM artworks`
