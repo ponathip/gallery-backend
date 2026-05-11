@@ -134,3 +134,27 @@ export async function addWallProjectLike(req, reply) {
     return reply.code(500).send({ message: "Failed to update like count" });
   }
 }
+
+export async function reorderWallProject(req, reply) {
+try {
+    const { items } = req.body;
+
+    if (!Array.isArray(items)) {
+      return reply.code(400).send({ message: "items ต้องเป็น array" });
+    }
+
+    const rows = await service.sortWallProject(
+      req.server.db,
+      items
+    );
+
+    return reply.send({
+      message: "อัปเดตลำดับสำเร็จ",
+      data: rows,
+    });
+
+  } catch (err) {
+    console.error(err);
+    return reply.code(500).send({ message: "อัปเดตลำดับไม่สำเร็จ" });
+  }
+}

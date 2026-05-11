@@ -136,7 +136,7 @@ export async function listArtworks(db, query) {
        OR size LIKE ?
        OR year LIKE ?
        OR category LIKE ?
-    ORDER BY created_at DESC
+    ORDER BY sort_order ASC, created_at DESC
     LIMIT ? OFFSET ?
   `,
   [q, q, q, q, limit, offset]
@@ -468,7 +468,7 @@ export async function listPublicArtworks(db) {
       created_at AS createdAt
     FROM artworks
     WHERE is_published = 1
-    ORDER BY created_at DESC
+    ORDER BY sort_order ASC, created_at DESC
   `);
 
   return rows;
@@ -570,4 +570,32 @@ export async function incrementArtworkLike(db, slug) {
   );
 
   return row;
+}
+
+export async function sortArtwork(db, items) {
+  const conn = await db.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    for (const item of items) {
+      await conn.query(
+        `
+        UPDATE artworks
+        SET sort_order = ?
+        WHERE id = ?
+        `,
+        [Number(item.sort_order), Number(item.id)]
+      );
+    }
+
+    await conn.commit();
+
+    return items;
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
 }

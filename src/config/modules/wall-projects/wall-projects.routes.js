@@ -10,6 +10,7 @@ import {
   updateWallProjectPublish,
   addWallProjectView,
   addWallProjectLike,
+  reorderWallProject,
 } from "./wall-projects.controller.js";
 
 export default async function wallProjectRoutes(app) {
@@ -30,4 +31,5 @@ export default async function wallProjectRoutes(app) {
   app.delete("/wall-projects/:id", deleteWallProject);
   app.put("/wall-projects/:id/images/sort", sortWallProjectImages);
   app.patch("/wall-projects/:id/publish", updateWallProjectPublish);
+  app.put("/wall-projects/reorder",  reorderWallProject);
 }

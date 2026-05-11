@@ -27,7 +27,7 @@ export async function listWallProjects(db, query) {
        OR location LIKE ?
        OR year LIKE ?
        OR space_type LIKE ?
-    ORDER BY created_at DESC
+    ORDER BY sort_order ASC, created_at DESC
     LIMIT ? OFFSET ?
     `,
     [q, q, q, q, limit, offset]
@@ -487,4 +487,32 @@ export async function incrementWallProjectLike(db, slug) {
   );
 
   return row;
+}
+
+export async function sortWallProject(db, items) {
+  const conn = await db.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    for (const item of items) {
+      await conn.query(
+        `
+        UPDATE wall_projects
+        SET sort_order = ?
+        WHERE id = ?
+        `,
+        [Number(item.sort_order), Number(item.id)]
+      );
+    }
+
+    await conn.commit();
+
+    return items;
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
 }

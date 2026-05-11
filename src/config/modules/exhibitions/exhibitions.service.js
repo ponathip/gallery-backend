@@ -506,3 +506,31 @@ export async function getPublicExhibitionBySlug(db, slug) {
     artworks,
   };
 }
+
+export async function sortExhibition(db, items) {
+  const conn = await db.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    for (const item of items) {
+      await conn.query(
+        `
+        UPDATE exhibitions
+        SET sort_order = ?
+        WHERE id = ?
+        `,
+        [Number(item.sort_order), Number(item.id)]
+      );
+    }
+
+    await conn.commit();
+
+    return items;
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
+}

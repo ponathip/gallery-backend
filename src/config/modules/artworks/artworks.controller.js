@@ -225,3 +225,27 @@ export async function addArtworkLike(req, reply) {
     });
   }
 }
+
+export async function reorderArtworks(req, reply) {
+  try {
+    const { items } = req.body;
+
+    if (!Array.isArray(items)) {
+      return reply.code(400).send({ message: "items ต้องเป็น array" });
+    }
+
+    const rows = await artworkService.sortArtwork(
+      req.server.db,
+      items
+    );
+
+    return reply.send({
+      message: "อัปเดตลำดับสำเร็จ",
+      data: rows,
+    });
+
+  } catch (err) {
+    console.error(err);
+    return reply.code(500).send({ message: "อัปเดตลำดับไม่สำเร็จ" });
+  }
+}

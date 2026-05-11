@@ -12,6 +12,7 @@ import {
   getPublicArtworkBySlug,
   addArtworkView,
   addArtworkLike,
+  reorderArtworks,
 } from "./artworks.controller.js";
 
 export default async function artworkRoutes(app) {
@@ -29,4 +30,5 @@ export default async function artworkRoutes(app) {
   app.delete("/artworks/:id/images/:imageId", deleteArtworkImage);
   app.delete("/artworks/:id", deleteArtwork);
   app.put("/artworks/:id/images/sort", sortArtworkImages);
+  app.put("/artworks/reorder",  reorderArtworks);
 }
