@@ -1,4 +1,5 @@
 import { deleteFromS3 } from "../../../services/s3.service.js";
+import { parseVideoEmbed } from "../../../utils/videoEmbed.js";
 
 export async function listWallProjects(db, query) {
   const page = Number(query.page || 1);
@@ -92,6 +93,8 @@ export async function getPublicWallProjectBySlug(db, slug) {
       description_th AS descriptionTh,
       concept,
       concept_th AS conceptTh,
+      video_embed_url AS videoEmbedUrl,
+      video_platform AS videoPlatform,
       view_count AS viewCount,
       like_count AS likeCount
     FROM wall_projects
@@ -149,6 +152,8 @@ export async function createWallProject(db, payload) {
     isPublished,
   } = payload;
 
+  const video = parseVideoEmbed(payload.videoUrl);
+
   const [result] = await db.query(
     `
     INSERT INTO wall_projects (
@@ -174,6 +179,9 @@ export async function createWallProject(db, payload) {
       description_th,
       concept,
       concept_th,
+      video_url,
+      video_embed_url,
+      video_platform,
       is_published
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -201,6 +209,9 @@ export async function createWallProject(db, payload) {
       descriptionTh,
       concept,
       conceptTh,
+      video.video_url,
+      video.video_embed_url,
+      video.platform,
       isPublished ? 1 : 0,
     ]
   );
@@ -243,6 +254,7 @@ export async function getWallProjectById(db, id) {
 }
 
 export async function updateWallProject(db, id, payload) {
+  const video = parseVideoEmbed(payload.videoUrl);
   await db.query(
     `
     UPDATE wall_projects
@@ -268,6 +280,9 @@ export async function updateWallProject(db, id, payload) {
       after_thumb_s3_key = ?,
       concept = ?,
       concept_th = ?,
+      video_url = ?,
+      video_embed_url = ?,
+      video_platform = ?,
       is_published = ?
     WHERE id = ?
     `,
@@ -293,6 +308,9 @@ export async function updateWallProject(db, id, payload) {
       payload.afterThumbS3Key,
       payload.concept,
       payload.conceptTh,
+      video.video_url,
+      video.video_embed_url,
+      video.platform,
       payload.isPublished ? 1 : 0,
       id,
     ]
